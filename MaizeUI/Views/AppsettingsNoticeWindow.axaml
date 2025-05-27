@@ -20,7 +20,7 @@
     <TextBox Margin="20 0 20 10" AcceptsReturn="True" IsReadOnly="False" Watermark="{Binding Watermark}" Text="{Binding Log}" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="225" Width="520"/>
     <TextBox IsVisible="{Binding IsEoaTextBoxVisible}" Text="{Binding EoaL1Key}" Margin="20 0 20 10" Watermark="EOA L1 Private Key (located in wallet settings/details)"/>
     <StackPanel IsVisible="{Binding IsLswTextBoxVisible}" Orientation="Horizontal">
-	  <TextBox Text="{Binding EoaL1Key}" Margin="20 0 10 10" Watermark="L1 Private Key" Width="150" ToolTip.Tip="Enter this or use Migration QR Code"/>
+	  <TextBox Text="{Binding EoaL1Key}" Margin="20 0 10 10" Watermark="L1 Key/Seed Phrase" Width="150" ToolTip.Tip="Enter this or use Migration QR Code"/>
       <TextBox Text="{Binding LoopringAppPassCode}" Margin="20 0 10 10" Watermark="LSW App Passcode" Width="150" ToolTip.Tip="Enter this or use L1 Private Key"/>
       <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="15" Text="Export QR Code: " TextWrapping="Wrap"/>
       <Button Content="Browse" Click="BrowseButton_Click" VerticalAlignment="Center"/>
