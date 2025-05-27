@@ -136,11 +136,15 @@ namespace MaizeUI.ViewModels
                 var layerOneKey = eoal1Key;
                 settings.Settings.MMorGMEPrivateKey = layerOneKey;
             }
-            else if (isCounterFactual == null && walletType.data.isContract == true) // need  to account for
+            else if (isCounterFactual == null && walletType.data.isInCounterFactualStatus == false && walletType.data.isContract == true && !string.IsNullOrEmpty(eoal1Key)) // need  to account for
+            {
+                settings.Settings.MMorGMEPrivateKey = eoal1Key;
+            }
+            else if (isCounterFactual != null && walletType.data.isInCounterFactualStatus == true && walletType.data.isContract == true) // need  to account for
             {
                 settings.Settings.MMorGMEPrivateKey = "";
             }
-            else if (isCounterFactual.accountId != 0 && walletType.data.isContract == false) // need  to account for
+            else if (isCounterFactual != null && isCounterFactual.accountId != 0 && walletType.data.isContract == false) // need  to account for
             {
                 settings.Settings.MMorGMEPrivateKey = "";
             }
@@ -225,7 +229,7 @@ namespace MaizeUI.ViewModels
                         IsLswTextBoxVisible = false;
                         IsEnabled = true;
                     }
-                    else if (isCounterFactual.accountId != 0 && walletType.data.isContract == false)
+                    else if (isCounterFactual != null && isCounterFactual.accountId != 0 && walletType.data.isContract == false)
                     {
                         IsLswTextBoxVisible = false;
                         IsEoaTextBoxVisible = false;
