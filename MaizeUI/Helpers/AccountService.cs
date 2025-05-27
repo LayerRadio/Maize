@@ -122,6 +122,10 @@ namespace MaizeUI.Helpers
             var environment = settings.Settings.Environment == 1 ? "_main" : "_test";
             string updatedJsonString = JsonConvert.SerializeObject(settings);
             string encryptedContent = Encryption.EncryptString(updatedJsonString, userPassword);
+            if (!Directory.Exists(Constants.BaseDirectory + Constants.EnvironmentPath))
+            {
+                Directory.CreateDirectory(Constants.BaseDirectory + Constants.EnvironmentPath);
+            }
             await File.WriteAllTextAsync(Constants.BaseDirectory + Constants.EnvironmentPath + settings.Settings.LoopringAddress + $"{environment}.json", encryptedContent);
             UpdateSelectedAccount(settings.Settings.LoopringAddress);
 
