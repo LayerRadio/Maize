@@ -13,6 +13,9 @@ using Newtonsoft.Json.Linq;
 using System.Text;
 using Maize.Models.ApplicationSpecific;
 using System.Text.RegularExpressions;
+using Nethereum.ABI;
+using Org.BouncyCastle.Asn1.Ocsp;
+using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Maize.Services
 {
@@ -504,6 +507,29 @@ namespace Maize.Services
                 return null;
             }
         }
+
+        public async Task<NftOffChainFeeResponse> GetNftWithdrawOffChainFee(string apiKey, int accountId, int requestType, string tokenAddress)
+        {
+            var request = new RestRequest("api/v3/user/nft/offchainFee");
+            request.AddHeader("x-api-key", apiKey);
+            request.AddParameter("accountId", accountId);
+            request.AddParameter("amount", 0);
+            request.AddParameter("deployInWithdraw", "false");
+            request.AddParameter("requestType", requestType);
+            request.AddParameter("tokenAddress", tokenAddress);
+            try
+            {
+                var response = await _client.GetAsync(request);
+                var data = JsonConvert.DeserializeObject<NftOffChainFeeResponse>(response.Content!);
+                return data;
+            }
+            catch (HttpRequestException httpException)
+            {
+                return null;
+            }
+        }
+
+
         public async Task<AccountInformationResponse> GetUserAccountInformationFromId(string accountId)
         {
             var request = new RestRequest("/api/v3/account");
@@ -1594,6 +1620,354 @@ namespace Maize.Services
                 return null;
             }
         }
+
+        public async Task<NftTransferAuditInformation> NftWithdraw(
+                ILoopringService loopringService,
+                int environment,
+                string environmentUrl,
+                string environmentExchange,
+                string loopringApiKey,
+                string loopringPrivateKey,
+                string MMorGMEPrivateKey,
+                int fromAccountId,
+                int toAccountId,
+                string maxFeeToken,
+                int maxFeeTokenId,
+                string fromAddress,
+                string fileName,
+                string inputPath,
+                int howManyLines,
+                int nftTokenId,
+                string nftAmount,
+                long validUntil,
+                decimal lcrTransactionFee,
+                string transferMemo,
+                string? nftData,
+                string toAddress,
+                bool payPayeeUpdateAccount,
+            CounterFactualInfo? isCounterFactual,
+            string tokenAddress
+                )
+        {
+            validUntil = ApplicationUtilitiesUI.GetUnixTimestamp() + (int)TimeSpan.FromDays(365).TotalSeconds;
+            string toAddressInitial = toAddress;
+            var airdropNumberOn = 0;
+            var gasFeeTotal = 0m;
+            var transactionFeeTotal = 0m;
+            string nftAmountInitial = nftAmount;
+
+            int nftTokenIdInitial = nftTokenId;
+            int nftSentTotal = 0;
+            List<string> invalidAddress = new();
+            List<string> validAddress = new();
+            List<string> banishAddress = new();
+            List<string> invalidNftData = new();
+            List<string> alreadyActivatedAddress = new();
+
+            //if (nftAmountInitial == null)
+            //{
+            //    var line = String.Concat(toAddressInitial.Where(c => !Char.IsWhiteSpace(c)));
+            //    string[] walletAddressLineArray = line.Split(',');
+            //    toAddressInitial = walletAddressLineArray[2].Trim();
+            //    nftAmount = walletAddressLineArray[1].Trim();
+            //}
+            if (nftTokenIdInitial == 0)
+            {
+                //var line = toAddressInitial;
+                //string[] walletAddressLineArray = line.Split(',');
+                //toAddressInitial = walletAddressLineArray[2].Trim();
+                //nftData = walletAddressLineArray[0].Trim();
+                var userNftToken = await loopringService.GetTokenId(loopringApiKey, fromAccountId, nftData);
+                if (userNftToken.totalNum == 0)
+                {
+                    //font.ToTertiaryInline($"\rDrop: {++airdropNumberOn}/{howManyLines} Wallet: {toAddressInitial}");
+                    invalidNftData.Add(nftData);
+                    //continue;
+                }
+                nftTokenId = userNftToken.data[0].tokenId;
+            }
+
+            //font.ToTertiaryInline($"\rDrop: {++airdropNumberOn}/{howManyLines} Wallet: {toAddressInitial}");
+
+            toAddress = toAddressInitial.ToLower().Trim();
+            var storageId = await loopringService.GetNextStorageId(loopringApiKey, fromAccountId, nftTokenId);
+            NftOffChainFeeResponse offChainFee;
+            offChainFee = await loopringService.GetNftWithdrawOffChainFee(loopringApiKey, fromAccountId, 10, tokenAddress);
+            toAddress = await loopringService.CheckForEthAddress(loopringService, loopringApiKey, toAddress);
+
+            //if (toAddress == "invalid eth address")
+            //{
+            //    invalidAddress.Add($"{toAddressInitial}");
+            //    Thread.Sleep(50); //for a rate limiter just incase multiple invalid ens
+            //    continue;
+            //}
+            //var checkValidAddress = await loopringService.GetUserAccountInformationFromOwner(toAddress);
+            //if (checkValidAddress == null)
+            //{
+            //    invalidAddress.Add($"{toAddressInitial}");
+            //    continue;
+            //}
+
+            //var contains = await loopringService.CheckBanishTextFile(font, toAddressInitial, toAddress, loopringApiKey);
+            //if (contains == true)
+            //{
+            //    banishAddress.Add(toAddressInitial);
+            //    continue;
+            //}
+
+            //Calculate eddsa signautre
+
+
+            var abiEncode = new ABIEncode();
+            var encoded = abiEncode.GetABIEncodedPacked(
+                new ABIValue("uint256", BigInteger.Zero), 
+                new ABIValue("address", toAddress),   
+                new ABIValue("bytes", Array.Empty<byte>()) // byte[]
+            );
+            var keccak = Sha3Keccack.Current.CalculateHash(encoded);  
+            var first20Bytes = keccak.AsSpan(0, 20).ToArray();
+
+            var orderHash = "0x" + first20Bytes.ToHex();
+
+
+            BigInteger[] poseidonInputs =
+            {
+                            ApplicationUtilities.ParseHexUnsigned(environmentExchange),
+                            (BigInteger) fromAccountId,
+                            (BigInteger) nftTokenId,
+                            BigInteger.Parse(nftAmount),
+                            (BigInteger) maxFeeTokenId,
+                            BigInteger.Parse(offChainFee.fees[maxFeeTokenId].fee),
+                            ApplicationUtilities.ParseHexUnsigned(orderHash), //might be wrong to turn this into a big integer...
+                            (BigInteger) validUntil,
+                            (BigInteger) storageId.offchainId
+            };
+            Poseidon poseidon = new(10, 6, 53, "poseidon", 5, _securityTarget: 128);
+            BigInteger poseidonHash = poseidon.CalculatePoseidonHash(poseidonInputs);
+            Eddsa eddsa = new(poseidonHash, loopringPrivateKey);
+            string eddsaSignature = eddsa.Sign();
+
+            //Calculate ecdsa
+            string primaryTypeName = "Withdrawal";
+            TypedData eip712TypedData = new()
+            {
+                Domain = new Domain()
+                {
+                    Name = "Loopring Protocol",
+                    Version = "3.6.0",
+                    ChainId = environment,
+                    VerifyingContract = environmentExchange,
+                },
+                PrimaryType = primaryTypeName,
+                Types = new Dictionary<string, MemberDescription[]>()
+                {
+                    ["EIP712Domain"] = new[]
+                    {
+                                    new MemberDescription {Name = "name", Type = "string"},
+                                    new MemberDescription {Name = "version", Type = "string"},
+                                    new MemberDescription {Name = "chainId", Type = "uint256"},
+                                    new MemberDescription {Name = "verifyingContract", Type = "address"},
+                                },
+                    [primaryTypeName] = new[]
+                    {
+                                    new MemberDescription {Name = "owner", Type = "address"},           
+                                    new MemberDescription {Name = "accountID", Type = "uint32"},              
+                                    new MemberDescription {Name = "tokenID", Type = "uint16"},         
+                                    new MemberDescription {Name = "amount", Type = "uint96"},           
+                                    new MemberDescription {Name = "feeTokenID", Type = "uint16"},       
+                                    new MemberDescription {Name = "maxFee", Type = "uint96"},
+                                    new MemberDescription {Name = "to", Type = "address"},
+                                    new MemberDescription {Name = "extraData", Type = "bytes"},
+                                    new MemberDescription {Name = "minGas", Type = "uint256"},
+                                    new MemberDescription {Name = "validUntil", Type = "uint32"},      
+                                    new MemberDescription {Name = "storageID", Type = "uint32"}        
+                                },
+
+                },
+                Message = new[]
+                {
+                          new MemberValue {Value = fromAddress, TypeName = "address"},
+                          new MemberValue {Value = fromAccountId, TypeName = "uint32"},
+                          new MemberValue {Value = nftTokenId, TypeName = "uint16"},
+                          new MemberValue {Value = BigInteger.Parse(nftAmount), TypeName = "uint96"},
+                          new MemberValue {Value = maxFeeTokenId, TypeName = "uint16"},
+                          new MemberValue {Value = BigInteger.Parse(offChainFee.fees[maxFeeTokenId].fee), TypeName = "uint96"},
+                          new MemberValue {Value = toAddress, TypeName = "address"},
+                          new MemberValue {Value = Array.Empty<byte>() , TypeName = "bytes"},
+                          new MemberValue {Value = BigInteger.Zero, TypeName = "uint256"},
+                          new MemberValue {Value = validUntil, TypeName = "uint32"},
+                          new MemberValue {Value = storageId.offchainId, TypeName = "uint32"}
+                        }
+            };
+
+            NftWithdrawTypedData typedData = new()
+            {
+                domain = new NftWithdrawTypedData.Domain()
+                {
+                    name = "Loopring Protocol",
+                    version = "3.6.0",
+                    chainId = environment,
+                    verifyingContract = environmentExchange,
+                },
+                message = new NftWithdrawTypedData.Message()
+                {
+                    owner = fromAddress,
+                    accountID = fromAccountId,
+                    tokenID = nftTokenId,
+                    amount = nftAmount,
+                    feeTokenID = maxFeeTokenId,
+                    maxFee = offChainFee.fees[maxFeeTokenId].fee,
+                    to = toAddress,
+                    extraData = "", //empty,
+                    minGas = BigInteger.Zero,
+                    validUntil = (int)validUntil,
+                    storageID = storageId.offchainId
+                },
+                primaryType = primaryTypeName,
+                types = new NftWithdrawTypedData.Types()
+                {
+                    EIP712Domain = new List<Type>()
+                                {
+                                    new Type(){ name = "name", type = "string"},
+                                    new Type(){ name="version", type = "string"},
+                                    new Type(){ name="chainId", type = "uint256"},
+                                    new Type(){ name="verifyingContract", type = "address"},
+                                },
+                    Withdrawal = new List<Type>()
+                   {
+                      new Type(){ name= "owner", type= "address" },
+                        new Type(){ name= "accountID", type= "uint32" },
+                        new Type(){ name= "tokenID", type= "uint16" },
+                        new Type(){ name= "amount", type= "uint96" },
+                        new Type(){ name= "feeTokenID", type= "uint16" },
+                        new Type(){ name= "maxFee", type= "uint96" },
+                        new Type(){ name= "to", type= "address" },
+                        new Type(){ name= "extraData", type= "bytes" },
+                        new Type(){ name= "minGas", type= "uint256" },
+                        new Type(){ name= "validUntil", type= "uint32" },
+                        new Type(){ name= "storageID", type= "uint32" },
+                   }
+                }
+            };
+
+            Eip712TypedDataSigner signer = new();
+            EthECKey ethECKey = new(null);
+            if (MMorGMEPrivateKey == "")
+                ethECKey = new EthECKey(loopringPrivateKey.Replace("0x", ""));
+            else
+                ethECKey = new EthECKey(MMorGMEPrivateKey.Replace("0x", ""));
+            var encodedTypedData = signer.EncodeTypedData(eip712TypedData);
+            var ECDRSASignature = ethECKey.SignAndCalculateV(Sha3Keccack.Current.CalculateHash(encodedTypedData));
+            var serializedECDRSASignature = EthECDSASignature.CreateStringSignature(ECDRSASignature);
+            var ecdsaSignature = serializedECDRSASignature + "0" + (int)2;
+
+            //Submit nft transfer
+            var nftTransferResponse = await loopringService.SubmitNftWithdraw(
+                apiKey: loopringApiKey,
+                exchange: environmentExchange,
+                accountId: fromAccountId,
+                owner: fromAddress,
+                to: toAddress,
+                nftTokenId: nftTokenId,
+                nftAmount: nftAmount,
+                maxFeeTokenId: maxFeeTokenId,
+                maxFeeAmount: offChainFee.fees[maxFeeTokenId].fee,
+                storageId: storageId.offchainId,
+                validUntil: validUntil,
+                eddsaSignature: eddsaSignature,
+                ecdsaSignature: ecdsaSignature,
+                nftData: nftData,
+                extraData: "",
+                isCounterFactual: isCounterFactual
+                );
+            if (nftTransferResponse.Contains("processing"))
+            {
+                validAddress.Add(toAddressInitial);
+                gasFeeTotal += decimal.Parse(offChainFee.fees[maxFeeTokenId].fee);
+                transactionFeeTotal += lcrTransactionFee;
+                nftSentTotal += int.Parse(nftAmount);
+            }
+            else
+            {
+                invalidAddress.Add(toAddressInitial + nftTransferResponse);
+            }
+
+            var nftTransferAuditInformation = new NftTransferAuditInformation()
+            {
+                validAddress = validAddress,
+                invalidAddress = invalidAddress,
+                banishAddress = banishAddress,
+                invalidNftData = invalidNftData,
+                alreadyActivatedAddress = alreadyActivatedAddress,
+                gasFeeTotal = gasFeeTotal,
+                transactionFeeTotal = transactionFeeTotal,
+                nftSentTotal = nftSentTotal,
+            };
+            return nftTransferAuditInformation;
+        }
+        public async Task<string> SubmitNftWithdraw(
+           string apiKey,
+           string exchange,
+           int accountId,
+           string owner,
+           string to,
+           int nftTokenId,
+           string nftAmount,
+           int maxFeeTokenId,
+           string maxFeeAmount,
+           int storageId,
+           long validUntil,
+           string eddsaSignature,
+           string ecdsaSignature,
+           string nftData,
+           string extraData,
+       CounterFactualInfo? isCounterFactual,
+           int minGas = 0
+       )
+        {
+            var request = new RestRequest("api/v3/nft/withdrawal");
+            request.AddHeader("x-api-key", apiKey);
+            request.AddHeader("x-api-sig", ecdsaSignature);
+            request.AlwaysMultipartFormData = true;
+            request.AddParameter("exchange", exchange);
+            request.AddParameter("accountId", accountId);
+            request.AddParameter("owner", owner);
+            request.AddParameter("to", to);
+            request.AddParameter("extraData", extraData);
+            request.AddParameter("minGas", 0);
+            request.AddParameter("token.tokenId", nftTokenId);
+            request.AddParameter("token.amount", nftAmount);
+            request.AddParameter("token.nftData", nftData);
+            request.AddParameter("maxFee.tokenId", maxFeeTokenId);
+            request.AddParameter("maxFee.amount", maxFeeAmount);
+            request.AddParameter("storageId", storageId);
+            request.AddParameter("validUntil", validUntil);
+            request.AddParameter("eddsaSignature", eddsaSignature);
+            if (isCounterFactual != null && isCounterFactual.accountId != 0)
+            {
+                request.AddParameter("counterFactualInfo.accountId", accountId);
+                request.AddParameter("counterFactualInfo.wallet", isCounterFactual.wallet);
+                request.AddParameter("counterFactualInfo.walletFactory", isCounterFactual.walletFactory);
+                request.AddParameter("counterFactualInfo.walletSalt", isCounterFactual.walletSalt);
+                request.AddParameter("counterFactualInfo.walletOwner", isCounterFactual.walletOwner);
+            }
+            else
+            {
+                request.AddParameter("ecdsaSignature", ecdsaSignature);
+            }
+            try
+            {
+                var response = await _client.ExecutePostAsync(request);
+                var data = response.Content;
+                return data;
+            }
+            catch (HttpRequestException httpException)
+            {
+
+                return null;
+            }
+        }
+
         public async Task<TransferFeeOffchainFee> GetOffChainTransferFee(string apiKey, int accountId, int requestType, string feeToken, string amount)
         {
             var request = new RestRequest("api/v3/user/offchainFee");

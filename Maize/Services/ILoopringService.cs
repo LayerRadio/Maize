@@ -1,5 +1,7 @@
 ﻿using Maize.Models;
 using Maize.Models.Responses;
+using Nethereum.JsonRpc.Client;
+using Newtonsoft.Json;
 using RestSharp;
 
 namespace Maize
@@ -145,5 +147,27 @@ int nftOrLrc,
                CounterFactualInfo? isCounterFactual
           );
         Task<CounterFactualInfo> GetCounterFactualInfo(int accountId);
+
+        Task<string> SubmitNftWithdraw(
+           string apiKey,
+           string exchange,
+           int accountId,
+           string owner,
+           string to,
+           int nftTokenId,
+           string nftAmount,
+           int maxFeeTokenId,
+           string maxFeeAmount,
+           int storageId,
+           long validUntil,
+           string eddsaSignature,
+           string ecdsaSignature,
+           string nftData,
+           string extraData,
+       CounterFactualInfo? isCounterFactual,
+           int minGas = 0
+       );
+
+        Task<NftOffChainFeeResponse> GetNftWithdrawOffChainFee(string apiKey, int accountId, int requestType, string tokenAddress);
     }
 }

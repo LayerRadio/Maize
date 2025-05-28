@@ -103,6 +103,8 @@ namespace MaizeUI.ViewModels
         public ReactiveCommand<Unit, Unit> LogoutCommand { get; }
         public ReactiveCommand<Unit, Unit> ExpressAirdropNftsCommand { get; }
 
+        public ReactiveCommand<Unit, Unit> AirdropWithdrawWalletCommand { get; }
+
         public MainMenuWindowViewModel(Action logoutAction, IDialogService dialogService, Window ownerWindow, AccountService accountService, string userPassword, Settings userSettings, LoopringServiceUI loopringService, Constants.Environment environment)
         {
             _environment = environment;
@@ -131,6 +133,7 @@ namespace MaizeUI.ViewModels
             MintCommand = ReactiveCommand.Create(Mint);
             LogoutCommand = ReactiveCommand.Create(Logout);
             ExpressAirdropNftsCommand = ReactiveCommand.Create(ExpressAirdropNfts);
+            AirdropWithdrawWalletCommand = ReactiveCommand.Create(AirdropWithdrawWallet);
             CheckForCollectionlessNfts();
             this.WhenAnyValue(x => x.OwnerWindow).Where(x => x != null).Subscribe(window =>
             {
@@ -215,6 +218,19 @@ namespace MaizeUI.ViewModels
 
             await _dialogService.ShowDialogAsync<AirdropMigrateWalletWindow, AirdropMigrateWalletWindowViewModel>(viewModel, OwnerWindow);
         }
+        private async void AirdropWithdrawWallet()
+        {
+            var viewModel = new AirdropWithdrawWalletWindowViewModel
+            {
+                LoopringService = _loopringService,
+                Settings = _settings,
+                Environment = _environment
+            };
+
+            await _dialogService.ShowDialogAsync<AirdropWithdrawWalletWindow, AirdropWithdrawWalletWindowViewModel>(viewModel, OwnerWindow);
+        }
+
+
         private async void ScriptingAirdropInputFile()
         {
             var viewModel = new ScriptingAirdropInputFileWindowViewModel
