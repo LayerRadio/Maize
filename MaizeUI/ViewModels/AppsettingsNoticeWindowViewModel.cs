@@ -10,6 +10,7 @@ using LoopringSmartWalletRecoveryPhraseExtractor;
 using OpenCvSharp;
 using Nethereum.HdWallet;
 using MaizeUI.Helpers;
+using NBitcoin;
 
 namespace MaizeUI.ViewModels
 {
@@ -138,7 +139,16 @@ namespace MaizeUI.ViewModels
             }
             else if (isCounterFactual == null && walletType.data.isInCounterFactualStatus == false && walletType.data.isContract == true && !string.IsNullOrEmpty(eoal1Key)) // need  to account for
             {
-                settings.Settings.MMorGMEPrivateKey = eoal1Key;
+                if (IsValidBip39Mnemonic(eoal1Key))
+                {
+                    Wallet wallet = new Wallet(eoal1Key, null);
+                    string walletPrivateKey = BitConverter.ToString(wallet.GetPrivateKey(0)).Replace("-", string.Empty).ToLower();
+                    settings.Settings.MMorGMEPrivateKey = walletPrivateKey;
+                }
+                else
+                {
+                    settings.Settings.MMorGMEPrivateKey = eoal1Key;
+                }
             }
             else if (isCounterFactual != null && walletType.data.isInCounterFactualStatus == true && walletType.data.isContract == true) // need  to account for
             {
@@ -290,6 +300,19 @@ namespace MaizeUI.ViewModels
                         return "You have entered the wrong passcode... try again!";
                     }
                 }
+            }
+        }
+
+        private bool IsValidBip39Mnemonic(string input)
+        {
+            try
+            {
+                var mnemonic = new Mnemonic(input.Trim());
+                return true;
+            }
+            catch(Exception ex)
+            {
+                return false;
             }
         }
     }
