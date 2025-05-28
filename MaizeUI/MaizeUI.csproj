@@ -95,6 +95,9 @@
     <Compile Update="Views\FindNftDataFromAWalletWindow.axaml.cs">
       <DependentUpon>FindNftDataFromAWalletWindow.axaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\AirdropWithdrawWalletWindow.axaml.cs">
+      <DependentUpon>AirdropWithdrawWalletWindow.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Update="Output\.gitkeep">

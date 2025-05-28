@@ -55,6 +55,7 @@
         <Button Width="180" Content="NFTs to Users" IsEnabled="True" Margin="0 0 0 10" Command="{Binding AirdropNftsToUsersCommand}" />
         <Button Width="180" Content="Crypto to Users" IsEnabled="True" Margin="0 0 0 10" Command="{Binding AirdropCryptoToUsersCommand}" />
         <Button Width="180" Content="NFT Wallet Swap" IsEnabled="True" Margin="0 0 0 10" Command="{Binding AirdropMigrateWalletCommand}" />
+	    <Button Width="180" Content="NFTs to Layer 1" IsEnabled="True" Margin="0 0 0 10" Command="{Binding AirdropWithdrawWalletCommand}" />
       </StackPanel>
       <StackPanel Margin="0 100 10 0">
         <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Text="Scripting:" FontSize="20" Margin="0 0 0 5" />
@@ -84,7 +85,7 @@
       </Button>
 
     </StackPanel>
-      <StackPanel Margin="0 250 10 0">
+      <StackPanel Margin="0 300 10 0">
         <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Text="Minting:" FontSize="20" Margin="0 0 0 5" />
         <Button Width="180" Content="Bulk Minting" IsEnabled="True" Margin="0 0 0 10" Command="{Binding MintCommand}" />
       </StackPanel>

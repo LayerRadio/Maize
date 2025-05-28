@@ -1605,5 +1605,89 @@ namespace Maize
                 return null;
             }
         }
+
+        public async Task<string> SubmitNftWithdraw(
+          string apiKey,
+          string exchange,
+          int accountId,
+          string owner,
+          string to,
+          int nftTokenId,
+          string nftAmount,
+          int maxFeeTokenId,
+          string maxFeeAmount,
+          int storageId,
+          long validUntil,
+          string eddsaSignature,
+          string ecdsaSignature,
+          string nftData,
+          string extraData,
+      CounterFactualInfo? isCounterFactual,
+          int minGas = 0
+      )
+        {
+            var request = new RestRequest("api/v3/nft/withdrawal");
+            request.AddHeader("x-api-key", apiKey);
+            request.AddHeader("x-api-sig", ecdsaSignature);
+            request.AlwaysMultipartFormData = true;
+            request.AddParameter("exchange", exchange);
+            request.AddParameter("accountId", accountId);
+            request.AddParameter("owner", owner);
+            request.AddParameter("to", to);
+            request.AddParameter("extraData", extraData);
+            request.AddParameter("minGas", 0);
+            request.AddParameter("token.tokenId", nftTokenId);
+            request.AddParameter("token.amount", nftAmount);
+            request.AddParameter("token.nftData", nftData);
+            request.AddParameter("maxFee.tokenId", maxFeeTokenId);
+            request.AddParameter("maxFee.amount", maxFeeAmount);
+            request.AddParameter("storageId", storageId);
+            request.AddParameter("validUntil", validUntil);
+            request.AddParameter("eddsaSignature", eddsaSignature);
+            if (isCounterFactual != null && isCounterFactual.accountId != 0)
+            {
+                request.AddParameter("counterFactualInfo.accountId", accountId);
+                request.AddParameter("counterFactualInfo.wallet", isCounterFactual.wallet);
+                request.AddParameter("counterFactualInfo.walletFactory", isCounterFactual.walletFactory);
+                request.AddParameter("counterFactualInfo.walletSalt", isCounterFactual.walletSalt);
+                request.AddParameter("counterFactualInfo.walletOwner", isCounterFactual.walletOwner);
+            }
+            else
+            {
+                request.AddParameter("ecdsaSignature", ecdsaSignature);
+            }
+            try
+            {
+                var response = await _client.ExecutePostAsync(request);
+                var data = response.Content;
+                return data;
+            }
+            catch (HttpRequestException httpException)
+            {
+
+                return null;
+            }
+        }
+
+        public async Task<NftOffChainFeeResponse> GetNftWithdrawOffChainFee(string apiKey, int accountId, int requestType, string tokenAddress)
+        {
+            var request = new RestRequest("api/v3/user/nft/offchainFee");
+            request.AddHeader("x-api-key", apiKey);
+            request.AddParameter("accountId", accountId);
+            request.AddParameter("amount", 0);
+            request.AddParameter("deployInWithdraw", false);
+            request.AddParameter("requestType", requestType);
+            request.AddParameter("tokenAddress", tokenAddress);
+            try
+            {
+                var response = await _client.GetAsync(request);
+                var data = JsonConvert.DeserializeObject<NftOffChainFeeResponse>(response.Content!);
+                return data;
+            }
+            catch (HttpRequestException httpException)
+            {
+                return null;
+            }
+        }
     }
 }
