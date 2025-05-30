@@ -32,7 +32,7 @@ namespace Maize.Services
                 var data = JsonConvert.DeserializeObject<bool>(response.Content!);
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return false;
             }
@@ -55,7 +55,7 @@ namespace Maize.Services
                 var data = JsonConvert.DeserializeObject< RefreshNftResponse> (response.Content!);
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
 
                 return new RefreshNftResponse()
@@ -89,7 +89,7 @@ namespace Maize.Services
                 var response = await _ipfsClient.PostAsync(request);
                 return JObject.Parse(response.Content)["Hash"].ToString();
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return null;
             }
@@ -118,7 +118,7 @@ namespace Maize.Services
                 return JObject.Parse(response.Content)["Hash"].ToString();
 
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return null;
             }
@@ -135,7 +135,7 @@ namespace Maize.Services
                 var data = JsonConvert.DeserializeObject<List<UserAssetsResponse>>(response.Content!);
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return null;
             }
@@ -159,7 +159,7 @@ namespace Maize.Services
                     }
                 }
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 // Handle the exception as needed
             }
@@ -186,7 +186,7 @@ namespace Maize.Services
                 }
                 return allData;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return null;
             }
@@ -210,7 +210,7 @@ namespace Maize.Services
                 }
                 return (allData, data.totalNum);
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return (null, 0);
             }
@@ -246,7 +246,7 @@ namespace Maize.Services
                 }
                 return allData;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return null;
             }
@@ -270,7 +270,7 @@ namespace Maize.Services
                 }
                 return (allData, data.totalNum);
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return (null, 0);
             }
@@ -302,7 +302,7 @@ namespace Maize.Services
                 }
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return null;
             }
@@ -327,7 +327,7 @@ namespace Maize.Services
                 Thread.Sleep(100);
                 return (allData, data.totalNum);
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return (null, 0);
             }
@@ -344,7 +344,7 @@ namespace Maize.Services
                 var data = JsonConvert.DeserializeObject<ResolveEnsOrNameResponse>(response.Content!);
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception ex)
             {
                 return null;
             }
@@ -361,7 +361,7 @@ namespace Maize.Services
                 var data = JsonConvert.DeserializeObject<ResolveEnsOrNameResponse>(response.Content!);
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 // Return an instance of ResolveEnsOrNameResponse with default values
                 return new ResolveEnsOrNameResponse
@@ -387,7 +387,7 @@ namespace Maize.Services
                 var data = JsonConvert.DeserializeObject<WalletTypeResponse>(response.Content!);
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return null;
             }
@@ -406,7 +406,7 @@ namespace Maize.Services
                 counter++;
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return null;
             }
@@ -442,7 +442,7 @@ namespace Maize.Services
                 }
                 return allData;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return null;
             }
@@ -467,7 +467,7 @@ namespace Maize.Services
                 }
                 return (allData, data.totalNum);
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return (null, 0);
             }
@@ -483,7 +483,7 @@ namespace Maize.Services
                 var data = JsonConvert.DeserializeObject<AccountInformationResponse>(response.Content!);
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 if (httpException.Message == "Request failed with status code BadRequest")
                     return null;
@@ -502,7 +502,7 @@ namespace Maize.Services
                 var data = JsonConvert.DeserializeObject<NftOffChainFeeResponse>(response.Content!);
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return null;
             }
@@ -523,7 +523,7 @@ namespace Maize.Services
                 var data = JsonConvert.DeserializeObject<NftOffChainFeeResponse>(response.Content!);
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return null;
             }
@@ -541,7 +541,7 @@ namespace Maize.Services
                 Thread.Sleep(50);
                 return data;
             }
-            catch (HttpRequestException httpexception)
+            catch (Exception httpexception)
             {
                 return null;
             }
@@ -557,7 +557,7 @@ namespace Maize.Services
                 var data = JsonConvert.DeserializeObject<ApiKeyResponse>(response.Content!);
                 return data.apiKey;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return null;
             }
@@ -589,7 +589,7 @@ namespace Maize.Services
                 }
                 return allData;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return null;
             }
@@ -607,7 +607,7 @@ namespace Maize.Services
                 var data = JsonConvert.DeserializeObject<NftDataResponse>(response.Content!);
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 if (httpException.Message == "Request failed with status code BadRequest")
                 {
@@ -629,7 +629,7 @@ namespace Maize.Services
                 var data = JsonConvert.DeserializeObject<NftHoldersResponse>(response.Content!);
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return null;
             }
@@ -660,7 +660,7 @@ namespace Maize.Services
                 }
                 return allData;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return null;
             }
@@ -684,7 +684,7 @@ namespace Maize.Services
                 Thread.Sleep(75);
                 return (allData, data.totalNum);
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return (null, 0);
             }
@@ -701,7 +701,7 @@ namespace Maize.Services
                 Thread.Sleep(50);
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return null;
             }
@@ -720,7 +720,7 @@ namespace Maize.Services
                 data = JsonConvert.DeserializeObject<NftBalance>(response.Content!);
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return null;
             }
@@ -736,7 +736,7 @@ namespace Maize.Services
                 data = JsonConvert.DeserializeObject<List<TokensResponse>>(response.Content!);
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return (null);
             }
@@ -752,7 +752,7 @@ namespace Maize.Services
                 data = JsonConvert.DeserializeObject<TokenPriceResponse>(response.Content!);
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return (null);
             }
@@ -771,9 +771,8 @@ namespace Maize.Services
                 counter++;
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception ex)
             {
-
                 return null;
             }
         }
@@ -790,7 +789,7 @@ namespace Maize.Services
 
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception ex)
             {
                 return null;
             }
@@ -808,7 +807,7 @@ namespace Maize.Services
                 var data = JsonConvert.DeserializeObject<OffchainFee>(response.Content!);
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception ex)
             {
                 return null;
             }
@@ -821,6 +820,10 @@ namespace Maize.Services
             if (address.Contains(".eth"))
             {
                 var varHexAddress = await LoopringService.GetHexAddress(apiKey, address);
+                if(varHexAddress == null)
+                {
+                    return null;
+                }
 
                 return string.IsNullOrEmpty(varHexAddress.data) ? null : varHexAddress.data;
             }
@@ -1090,7 +1093,7 @@ namespace Maize.Services
                 var data = response.Content;
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
 
                 return null;
@@ -1346,11 +1349,21 @@ namespace Maize.Services
                 //toAddressInitial = walletAddressLineArray[2].Trim();
                 //nftData = walletAddressLineArray[0].Trim();
                 var userNftToken = await loopringService.GetTokenId(loopringApiKey, fromAccountId, nftData);
-                if (userNftToken.totalNum == 0)
+
+                if (userNftToken == null || userNftToken.totalNum == 0)
                 {
-                    //font.ToTertiaryInline($"\rDrop: {++airdropNumberOn}/{howManyLines} Wallet: {toAddressInitial}");
-                    invalidNftData.Add(nftData);
-                    //continue;
+                    var auditTransferAuditInformation = new NftTransferAuditInformation()
+                    {
+                        validAddress = validAddress,
+                        invalidAddress = invalidAddress,
+                        banishAddress = banishAddress,
+                        invalidNftData = invalidNftData,
+                        alreadyActivatedAddress = alreadyActivatedAddress,
+                        gasFeeTotal = gasFeeTotal,
+                        transactionFeeTotal = transactionFeeTotal,
+                        nftSentTotal = nftSentTotal,
+                    };
+                    return auditTransferAuditInformation;
                 }
                 nftTokenId = userNftToken.data[0].tokenId;
             }
@@ -1365,6 +1378,28 @@ namespace Maize.Services
             else
                 offChainFee = await loopringService.GetOffChainFee(loopringApiKey, fromAccountId, 19, "0");
             toAddress = await loopringService.CheckForEthAddress(loopringService, loopringApiKey, toAddress);
+
+            //Don't continue unless all of these are valid
+            if (storageId != null  && offChainFee != null && !string.IsNullOrEmpty(toAddress))
+            {
+                
+            }
+            else
+            {
+                var auditTransferAuditInformation = new NftTransferAuditInformation()
+                {
+                    validAddress = validAddress,
+                    invalidAddress = invalidAddress,
+                    banishAddress = banishAddress,
+                    invalidNftData = invalidNftData,
+                    alreadyActivatedAddress = alreadyActivatedAddress,
+                    gasFeeTotal = gasFeeTotal,
+                    transactionFeeTotal = transactionFeeTotal,
+                    nftSentTotal = nftSentTotal,
+                };
+                return auditTransferAuditInformation;
+            }
+            
 
             //if (toAddress == "invalid eth address")
             //{
@@ -1530,6 +1565,7 @@ namespace Maize.Services
                 payPayeeUpdateAccount: payPayeeUpdateAccount,
                 isCounterFactual: isCounterFactual
                 );
+
             if (nftTransferResponse.Contains("processing"))
             {
                 validAddress.Add(toAddressInitial);
@@ -1614,7 +1650,7 @@ namespace Maize.Services
                 var data = response.Content;
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception ex)
             {
 
                 return null;
@@ -1678,11 +1714,21 @@ namespace Maize.Services
                 //toAddressInitial = walletAddressLineArray[2].Trim();
                 //nftData = walletAddressLineArray[0].Trim();
                 var userNftToken = await loopringService.GetTokenId(loopringApiKey, fromAccountId, nftData);
-                if (userNftToken.totalNum == 0)
+
+                if (userNftToken == null || userNftToken.totalNum == 0)
                 {
-                    //font.ToTertiaryInline($"\rDrop: {++airdropNumberOn}/{howManyLines} Wallet: {toAddressInitial}");
-                    invalidNftData.Add(nftData);
-                    //continue;
+                    var auditTransferAuditInformation = new NftTransferAuditInformation()
+                    {
+                        validAddress = validAddress,
+                        invalidAddress = invalidAddress,
+                        banishAddress = banishAddress,
+                        invalidNftData = invalidNftData,
+                        alreadyActivatedAddress = alreadyActivatedAddress,
+                        gasFeeTotal = gasFeeTotal,
+                        transactionFeeTotal = transactionFeeTotal,
+                        nftSentTotal = nftSentTotal,
+                    };
+                    return auditTransferAuditInformation;
                 }
                 nftTokenId = userNftToken.data[0].tokenId;
             }
@@ -1694,6 +1740,27 @@ namespace Maize.Services
             NftOffChainFeeResponse offChainFee;
             offChainFee = await loopringService.GetNftWithdrawOffChainFee(loopringApiKey, fromAccountId, 10, tokenAddress);
             toAddress = await loopringService.CheckForEthAddress(loopringService, loopringApiKey, toAddress);
+
+            //Don't continue unless all of these are valid
+            if (storageId != null && offChainFee != null && !string.IsNullOrEmpty(toAddress))
+            {
+
+            }
+            else
+            {
+                var auditTransferAuditInformation = new NftTransferAuditInformation()
+                {
+                    validAddress = validAddress,
+                    invalidAddress = invalidAddress,
+                    banishAddress = banishAddress,
+                    invalidNftData = invalidNftData,
+                    alreadyActivatedAddress = alreadyActivatedAddress,
+                    gasFeeTotal = gasFeeTotal,
+                    transactionFeeTotal = transactionFeeTotal,
+                    nftSentTotal = nftSentTotal,
+                };
+                return auditTransferAuditInformation;
+            }
 
             //if (toAddress == "invalid eth address")
             //{
@@ -1961,7 +2028,7 @@ namespace Maize.Services
                 var data = response.Content;
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
 
                 return null;
@@ -1982,7 +2049,7 @@ namespace Maize.Services
                 var data = JsonConvert.DeserializeObject<TransferFeeOffchainFee>(response.Content!);
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return null;
             }
@@ -2519,7 +2586,7 @@ namespace Maize.Services
                 var data = response.Content;
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return null;
             }
@@ -2534,7 +2601,7 @@ namespace Maize.Services
                 var data = JsonConvert.DeserializeObject<CounterFactualInfo>(response.Content!);
                 return data;
             }
-            catch (HttpRequestException httpException)
+            catch (Exception httpException)
             {
                 return null;
             }
