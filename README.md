@@ -1,9 +1,14 @@
-[![MaizeHelps.Art](https://github.com/cobmin/Maize/assets/97369738/4db3a21f-11aa-4cb6-8214-aa5655332c1f)](https://maizehelps.art/)
+# MAIZE IS IN MAINTENANCE MODE 
 
-[Explore everything about Maize here](https://maizehelps.art/)
+Maize's repo has been archived and there were some bugs so I forked it and fixed a couple of them.
 
+Any further development here will mostly be bug fixes.
 
----
+# Docs
 
-### Acknowledgments 🌟
-A sincere thank you to [**Fudgey**](https://github.com/fudgebucket27). Your insights, expertise, and continued support have brought this application to life. Your assistance goes beyond code; it's the camaraderie and the invaluable lessons learned. 💙
+[Maize docs (out of date)](https://www.maize.run/)
+
+# Acknowledgments 🌟
+A big thank you to [**Cobmin**](https://github.com/jacobhuberdotme), the original creator of this amazing tool. All credit should go to him! Loopring and it's NFT ecosystem would be very different without Maize.💙
+
+From myself and the Loopring community we appreciate all of the work you put into this 🙏
