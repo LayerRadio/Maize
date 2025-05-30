@@ -1,6 +1,6 @@
 # MAIZE IS IN MAINTENANCE MODE 
 
-Maize's repo has been archived and there were some bugs so I forked it and fixed a couple of them.
+Maize's original repo has been archived and there were some bugs so I forked it and fixed a couple of them.
 
 Any further development here will mostly be bug fixes.
 
