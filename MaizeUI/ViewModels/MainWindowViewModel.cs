@@ -262,7 +262,7 @@ namespace MaizeUI.ViewModels
 
         private void HelpFile()
         {
-            Maize.Helpers.Things.OpenUrl("https://maizehelps.art/docs");
+            //Maize.Helpers.Things.OpenUrl("https://maize-documentation-alpha.vercel.app/docs");
         }
         public async Task ShowNoticeDialog(string notice, string location, string url)
         {

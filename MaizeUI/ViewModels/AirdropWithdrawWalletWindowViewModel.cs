@@ -190,8 +190,8 @@ namespace MaizeUI.ViewModels
             Log = $"Enter the ENS or wallet address in the above box to withdraw your NFTs to it's Layer 1.\r\nOnly NFTs with a deployed contract will be withdrawn.";
             Notice = "Transfer all your NFTs from Loopring Layer 2 to Ethereum Layer 1";
             Notice2 = "👈 Choose";
-            Notice3 = "Press Preview to see a summary of your NFT Withdraw";
-            Notice4 = "Press Start to begin your NFT Withdraw";
+            Notice3 = "Press Preview to see a summary of your NFT Withdraw to Layer 1";
+            Notice4 = "Press Start to begin your NFT Withdraw to Layer 1";
             Notice5 = "☝️ insufficient funds";
             Notice6 = "NFT Withdraw completed! Exit to start a new one.";
             NftWithdrawWalletCommand = ReactiveCommand.Create(NftWithdrawWallet);
@@ -241,7 +241,8 @@ namespace MaizeUI.ViewModels
                 isCounterFactual = await LoopringService.GetCounterFactualInfo(settings.LoopringAccountId);
             foreach (var item in allNfts.SelectMany(d => d))
             {
-                    Log = $"Withdrawing NFT {allNfts.SelectMany(d => d).ToList().IndexOf(item) + 1}/{allNfts.SelectMany(d => d).ToList().Count()}";
+                var apiSw = Stopwatch.StartNew();
+                Log = $"Withdrawing NFT {allNfts.SelectMany(d => d).ToList().IndexOf(item) + 1}/{allNfts.SelectMany(d => d).ToList().Count()}";
                     // nft transfer
                     var newAuditInfo = await LoopringService.NftWithdraw(
                         LoopringService,
@@ -259,7 +260,7 @@ namespace MaizeUI.ViewModels
                         Constants.InputFile,
                         Constants.InputFolder,
                         0, //how many lines...doesnt matter old tech
-                        0,
+                        item.tokenId,
                         item.total.ToString(),
                         settings.ValidUntil,
                         Constants.LcrTransactionFee,
@@ -287,7 +288,7 @@ namespace MaizeUI.ViewModels
                     auditInfo.gasFeeTotal += newAuditInfo.gasFeeTotal;
                     auditInfo.transactionFeeTotal += newAuditInfo.transactionFeeTotal;
                     auditInfo.nftSentTotal += newAuditInfo.nftSentTotal;
-  
+                Timers.ApiStopWatchCheck(apiSw);
             }
 
             maxFeeTokenId = ("ETH" == LoopringFeeSelectedOption) ? 0 : 1;

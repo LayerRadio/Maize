@@ -187,8 +187,8 @@ namespace MaizeUI.ViewModels
             IsCheckboxVisible = false;
             IsCheckboxVisibleStep1 = true;
             IsPreviewButtonVisible = false;
-            Log = $"Enter the ENS or wallet address in the above box to transfer all of your NFTs to the desired wallet.";
-            Notice = "Transfer all your NFTs to another Wallet.";
+            Log = $"Enter the ENS or wallet address in the above box to transfer all of your NFTs to the desired wallet on Loopring Layer 2.";
+            Notice = "Transfer all your NFTs to another Wallet on Loopring Layer 2";
             Notice2 = "👈 Choose";
             Notice3 = "Press Preview to see a summary of your NFT Wallet Swap";
             Notice4 = "Press Start to begin your NFT Wallet Swap";
@@ -243,6 +243,7 @@ namespace MaizeUI.ViewModels
             {
                 if (IsChecked == true && allNfts.SelectMany(d => d).ToList().IndexOf(item) == 0)
                 {
+                    var apiSw = Stopwatch.StartNew();
                     Log = $"Transfering NFT with activation {allNfts.SelectMany(d => d).ToList().IndexOf(item) + 1}/{allNfts.SelectMany(d => d).ToList().Count()} ";
                     // nft transfer
                     var activateAuditInfo = await LoopringService.NftTransfer(
@@ -261,7 +262,7 @@ namespace MaizeUI.ViewModels
                         Constants.InputFile,
                         Constants.InputFolder,
                         0,
-                        0,
+                        item.tokenId,
                         item.total.ToString(),
                         settings.ValidUntil,
                         Constants.LcrTransactionFee,
@@ -288,9 +289,11 @@ namespace MaizeUI.ViewModels
                         auditInfo.gasFeeTotal += activateAuditInfo.gasFeeTotal;
                         auditInfo.transactionFeeTotal += activateAuditInfo.transactionFeeTotal;
                         auditInfo.nftSentTotal += activateAuditInfo.nftSentTotal;
+                        Timers.ApiStopWatchCheck(apiSw);
                 }
                 else
                 {
+                    var apiSw = Stopwatch.StartNew();
                     Log = $"Transfering NFT {allNfts.SelectMany(d => d).ToList().IndexOf(item) + 1}/{allNfts.SelectMany(d => d).ToList().Count()}";
                     // nft transfer
                     var newAuditInfo = await LoopringService.NftTransfer(
@@ -309,7 +312,7 @@ namespace MaizeUI.ViewModels
                         Constants.InputFile,
                         Constants.InputFolder,
                         0, //how many lines...doesnt matter old tech
-                        0,
+                        item.tokenId,
                         item.total.ToString(),
                         settings.ValidUntil,
                         Constants.LcrTransactionFee,
@@ -336,6 +339,7 @@ namespace MaizeUI.ViewModels
                     auditInfo.gasFeeTotal += newAuditInfo.gasFeeTotal;
                     auditInfo.transactionFeeTotal += newAuditInfo.transactionFeeTotal;
                     auditInfo.nftSentTotal += newAuditInfo.nftSentTotal;
+                    Timers.ApiStopWatchCheck(apiSw);
                 }
 
             }

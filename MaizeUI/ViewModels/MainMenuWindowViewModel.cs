@@ -152,8 +152,9 @@ namespace MaizeUI.ViewModels
         {
             var hasCollectionlessNfts = await _loopringService.HasCollectionlessNfts(_settings.LoopringApiKey, _settings.LoopringAccountId);
             if (hasCollectionlessNfts)
-                Maize.Helpers.Things.OpenUrl("https://www.cobmin.com/posts/Setup-Your-Loopring-Legacy-NFTs");
-
+            {
+                //Maize.Helpers.Things.OpenUrl("https://www.cobmin.com/posts/Setup-Your-Loopring-Legacy-NFTs");
+            }
         }
         private async void FindNftDataFromAWallet()
         {
@@ -317,7 +318,7 @@ namespace MaizeUI.ViewModels
         }
         private void HelpFile()
         {
-            Maize.Helpers.Things.OpenUrl("https://maizehelps.art/docs");
+            //Maize.Helpers.Things.OpenUrl("https://maize-documentation-alpha.vercel.app/docs");
         }
     }
 }
