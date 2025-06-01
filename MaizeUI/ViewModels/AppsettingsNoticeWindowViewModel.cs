@@ -127,7 +127,7 @@ namespace MaizeUI.ViewModels
                 IsEnabled = true;
                 return;
             }
-            if (isCounterFactual == null && walletType.data.isInCounterFactualStatus == false && walletType.data.isContract == false)
+            if (isCounterFactual == null && walletType.data.isInCounterFactualStatus == false && walletType.data.isContract == false) //EOA
             {
                 if (string.IsNullOrEmpty(eoal1Key))
                 {
@@ -137,7 +137,7 @@ namespace MaizeUI.ViewModels
                 var layerOneKey = eoal1Key;
                 settings.Settings.MMorGMEPrivateKey = layerOneKey;
             }
-            else if (isCounterFactual == null && walletType.data.isInCounterFactualStatus == false && walletType.data.isContract == true && !string.IsNullOrEmpty(eoal1Key)) // need  to account for
+            else if ((isCounterFactual == null || isCounterFactual != null && isCounterFactual.accountId != 0) && walletType.data.isInCounterFactualStatus == false && walletType.data.isContract == true && !string.IsNullOrEmpty(eoal1Key)) //Typical LSW with layer 1 activated
             {
                 if (IsValidBip39Mnemonic(eoal1Key))
                 {
@@ -150,11 +150,11 @@ namespace MaizeUI.ViewModels
                     settings.Settings.MMorGMEPrivateKey = eoal1Key;
                 }
             }
-            else if (isCounterFactual != null && walletType.data.isInCounterFactualStatus == true && walletType.data.isContract == true) // need  to account for
+            else if (isCounterFactual != null && walletType.data.isInCounterFactualStatus == true && walletType.data.isContract == true) //Counterfactual
             {
                 settings.Settings.MMorGMEPrivateKey = "";
             }
-            else if (isCounterFactual != null && isCounterFactual.accountId != 0 && walletType.data.isContract == false) // need  to account for
+            else if (isCounterFactual != null && isCounterFactual.accountId != 0 && walletType.data.isContract == false) //another counterfactual?
             {
                 settings.Settings.MMorGMEPrivateKey = "";
             }
