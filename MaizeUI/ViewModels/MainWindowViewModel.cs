@@ -14,6 +14,7 @@ using Splat;
 using Newtonsoft.Json.Linq;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace MaizeUI.ViewModels
 {
@@ -22,6 +23,15 @@ namespace MaizeUI.ViewModels
         private HttpClient _httpClient = new HttpClient();
         public string DownloadUrl { get; private set; }
         public bool IsUpdateAvailable { get; private set; }
+
+        public string VersionTooltip
+        {
+            get
+            {
+                var version = Assembly.GetExecutingAssembly().GetName().Version;
+                return $"App Version: v{version?.Major}.{version?.Minor}.{version?.Build}";
+            }
+        }
 
         public string DownloadUrlMac { get; private set; }
         public string DownloadUrlWindows { get; private set; }

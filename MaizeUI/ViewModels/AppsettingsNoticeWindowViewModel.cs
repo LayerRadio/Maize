@@ -11,6 +11,7 @@ using OpenCvSharp;
 using Nethereum.HdWallet;
 using MaizeUI.Helpers;
 using NBitcoin;
+using System.Numerics;
 
 namespace MaizeUI.ViewModels
 {
@@ -100,6 +101,19 @@ namespace MaizeUI.ViewModels
             set => this.RaiseAndSetIfChanged(ref isEnabled, value);
         }
 
+
+        private int _inputMode;
+
+
+        public int InputMode
+        {
+            get => _inputMode;
+            set => this.RaiseAndSetIfChanged(ref _inputMode, value);
+        }
+
+        public bool IsSeedPhraseMode => InputMode == 0; // 0 = Seed Phrase
+        public bool IsQrCodeMode => InputMode == 1;     // 1 = QR Code and App Passcode
+
         public ReactiveCommand<Unit, Unit> SetupApsettingsFileCommand { get; }
 
         public AppsettingsNoticeWindowViewModel(string notice, string location, LoopringServiceUI loopringService, AccountService accountService)
@@ -113,6 +127,14 @@ namespace MaizeUI.ViewModels
             IsLswTextBoxVisible = false;
             IsEoaTextBoxVisible = false;
             SetupApsettingsFileCommand = ReactiveCommand.Create(SetupApsettingsFile);
+
+            // React to InputMode changes to update visibility
+            this.WhenAnyValue(x => x.InputMode)
+                .Subscribe(_ =>
+                {
+                    this.RaisePropertyChanged(nameof(IsSeedPhraseMode));
+                    this.RaisePropertyChanged(nameof(IsQrCodeMode));
+                });
         }
         public event Action<string> OnSettingsFileSaved;
         public event Action RequestClose;
@@ -129,25 +151,30 @@ namespace MaizeUI.ViewModels
             }
             if (isCounterFactual == null && walletType.data.isInCounterFactualStatus == false && walletType.data.isContract == false) //EOA
             {
-                if (string.IsNullOrEmpty(eoal1Key))
+                if (string.IsNullOrEmpty(eoal1Key.Trim()))
                 {
                     IsEnabled = true;
                     return;
                 }
-                var layerOneKey = eoal1Key;
+                var layerOneKey = eoal1Key.Trim();
                 settings.Settings.MMorGMEPrivateKey = layerOneKey;
             }
-            else if ((isCounterFactual == null || isCounterFactual != null && isCounterFactual.accountId != 0) && walletType.data.isInCounterFactualStatus == false && walletType.data.isContract == true && !string.IsNullOrEmpty(eoal1Key)) //Typical LSW with layer 1 activated
+            else if ((isCounterFactual == null || isCounterFactual != null && isCounterFactual.accountId != 0) && walletType.data.isInCounterFactualStatus == false && walletType.data.isContract == true && !string.IsNullOrEmpty(eoal1Key.Trim())) //Typical LSW with layer 1 activated
             {
-                if (IsValidBip39Mnemonic(eoal1Key))
+                if (IsValidBip39Mnemonic(eoal1Key.Trim()))
                 {
-                    Wallet wallet = new Wallet(eoal1Key, null);
+                    Wallet wallet = new Wallet(eoal1Key.Trim(), null);
                     string walletPrivateKey = BitConverter.ToString(wallet.GetPrivateKey(0)).Replace("-", string.Empty).ToLower();
                     settings.Settings.MMorGMEPrivateKey = walletPrivateKey;
                 }
+                else if (IsValidEthereumPrivateKey(eoal1Key.Trim()))
+                {
+                    settings.Settings.MMorGMEPrivateKey = eoal1Key.Trim();
+                }
                 else
                 {
-                    settings.Settings.MMorGMEPrivateKey = eoal1Key;
+                    Notice = "Please enter a valid seed phrase or private key!";
+                    return;
                 }
             }
             else if (isCounterFactual != null && walletType.data.isInCounterFactualStatus == true && walletType.data.isContract == true) //Counterfactual
@@ -314,6 +341,44 @@ namespace MaizeUI.ViewModels
             {
                 return false;
             }
+        }
+
+        public static bool IsValidEthereumPrivateKey(string privateKey)
+        {
+            if (string.IsNullOrWhiteSpace(privateKey))
+                return false;
+
+            if (privateKey.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+                privateKey = privateKey.Substring(2);
+
+            if (privateKey.Length != 64)
+                return false;
+
+            foreach (char c in privateKey)
+            {
+                if (!IsHexDigit(c))
+                    return false;
+            }
+
+            try
+            {
+                BigInteger key = BigInteger.Parse("0" + privateKey, System.Globalization.NumberStyles.HexNumber);
+
+                BigInteger maxValue = BigInteger.Parse("0FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141", System.Globalization.NumberStyles.HexNumber);
+
+                return key > 0 && key < maxValue;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool IsHexDigit(char c)
+        {
+            return (c >= '0' && c <= '9') ||
+                   (c >= 'A' && c <= 'F') ||
+                   (c >= 'a' && c <= 'f');
         }
     }
 }

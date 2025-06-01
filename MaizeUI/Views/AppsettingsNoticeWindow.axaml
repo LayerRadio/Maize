@@ -19,12 +19,23 @@
     <TextBlock Margin="20 20 20 10" FontSize="15" Text="{Binding Notice}" TextWrapping="Wrap"/>
     <TextBox Margin="20 0 20 10" AcceptsReturn="True" IsReadOnly="False" Watermark="{Binding Watermark}" Text="{Binding Log}" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="225" Width="520"/>
     <TextBox IsVisible="{Binding IsEoaTextBoxVisible}" Text="{Binding EoaL1Key}" Margin="20 0 20 10" Watermark="EOA L1 Private Key (located in wallet settings/details)"/>
-    <StackPanel IsVisible="{Binding IsLswTextBoxVisible}" Orientation="Horizontal">
-	  <TextBox Text="{Binding EoaL1Key}" Margin="20 0 10 10" Watermark="L1 Key/Seed Phrase" Width="150" ToolTip.Tip="Enter this or use Export QR Code"/>
-      <TextBox Text="{Binding LoopringAppPassCode}" Margin="20 0 10 10" Watermark="LSW App Passcode" Width="150" ToolTip.Tip="Enter this if using Export QR Code"/>
-      <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="15" Text="Export QR Code: " TextWrapping="Wrap"/>
-      <Button Content="Browse" Click="BrowseButton_Click" VerticalAlignment="Center"/>
-    </StackPanel>
+	  <!-- StackPanel for QR Code/Seed Phrase selection -->
+	  <StackPanel IsVisible="{Binding IsLswTextBoxVisible}" Orientation="Horizontal" Margin="20 0 20 10">
+		  <ComboBox SelectedIndex="{Binding InputMode}" Margin="0 0 10 0" Width="150" VerticalAlignment="Top">
+			  <ComboBoxItem>Seed Phrase</ComboBoxItem>
+			  <ComboBoxItem>QR Code</ComboBoxItem>
+		  </ComboBox>
+		  <StackPanel Orientation="Vertical">
+			  <StackPanel Orientation="Horizontal" IsVisible="{Binding IsSeedPhraseMode}">
+				  <TextBox Text="{Binding EoaL1Key}" Margin="0 0 10 0" Watermark="L1 Key/Seed Phrase" Width="300" ToolTip.Tip="Enter your seed phrase"/>
+			  </StackPanel>
+			  <StackPanel Orientation="Horizontal" IsVisible="{Binding IsQrCodeMode}">
+				  <TextBox Text="{Binding LoopringAppPassCode}" Margin="0 0 10 0" Watermark="App Passcode" Width="150" ToolTip.Tip="Enter the app passcode"/>
+				  <TextBlock VerticalAlignment="Center" FontSize="15" Text="Export QR Code: " TextWrapping="Wrap"/>
+				  <Button Content="Browse" Click="BrowseButton_Click" VerticalAlignment="Center"/>
+			  </StackPanel>
+		  </StackPanel>
+	  </StackPanel>
 
     <Image Source="{Binding ImagePath}" />
 
